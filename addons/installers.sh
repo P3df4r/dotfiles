@@ -1,7 +1,7 @@
 #!/bin/bash
 
 lvim="Lunarvim"
-user=whoami
+user=$(whoami)
 
 declare -A distro_commands
 distro_commands["opensuse-leap"]="zypper"
@@ -40,9 +40,14 @@ default_tools(){
 	}
 
 gen_ssh_key_git(){
+  echo "Criando a pasta do ssh"
+  mkdir -p ~/.ssh
+  chmod 700 ~/.ssh
   echo "Gerando chave ssh para adição no git"
-  ssh-keygen -t ed25519 -C "$user_pc"
-  cat ~/.ssh/*.pub
+  ssh-keygen -t ed25519 -C "$user@$(hostname)" -f "$ssh_key_file"
+  echo "Chave pública gerada:"
+  cat "${ssh_key_file}.pub"
+
 }
 
 install_lazygit(){
@@ -77,12 +82,13 @@ install_node(){
 	npm -v # Should print "10.9.2".
 }
 
-lunarvim(){
+install_lunarvim(){
   for i in $distros; do
     if grep -q "^ID=\"$i\"" /etc/os-release; then
       for command in "${!distro_commands}"; do
-        echo "Instalando $lvim Release "
+        echo "Instalando ferramentas padrões"
         default_tools
+        echo "Instalando dependências do $lvim"
         sudo ${distro_commands["$i"]} install make
         sudo ${distro_commands["$i"]} install neovim
         sudo ${distro_commands["$i"]} install python
@@ -91,12 +97,15 @@ lunarvim(){
         sudo ${distro_commands["$i"]} install nodejs22
         sudo ${distro_commands["$i"]} install cargo
         sudo ${distro_commands["$i"]} install ripgrep
+        echo "Instalando $lvim Release "
         LV_BRANCH='release-1.4/neovim-0.9' bash <(curl -s https://raw.githubusercontent.com/LunarVim/LunarVim/release-1.4/neovim-0.9/utils/installer/install.sh)
         echo export PATH="~/.local/bin:$PATH" >> ~/.bashrc
-        echo "Será necessário reiniciar o terminal para funcionar o $lvim"
       done
     fi
   done
+  install_fonts
+  install_lazygit
+  echo "Será necessário reiniciar o terminal para funcionar o $lvim"
 }
 
 install_fonts(){
@@ -105,3 +114,13 @@ install_fonts(){
     fc-cache -f -v
 }
 
+install_figlet(){
+  for i in $distros; do
+    if grep -q "^ID=\"$i\"" /etc/os-release; then
+      for command in "${!distro_commands}"; do
+        sudo ${distro_commands["$i"]} install figlet
+      done
+    fi
+  done
+
+}
