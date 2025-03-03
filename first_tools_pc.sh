@@ -3,22 +3,40 @@
 lvim="Lunarvim"
 user=whoami
 
-update_system(){
-	echo "Atualizando o sistema"
-	sudo zypper update
-	sudo zypper dist-upgrade
+declare -A distro_commands
+distro_commands["opensuse-leap"]="zypper"
+distro_commands["ubuntu"]="apt"
+distro_commands["fedora"]="dnf"
+
+distros=("opensuse-leap" "ubuntu" "fedora")
+
+update_full_system(){
+  for i in $distros; do
+    if grep -q "^ID=\"$i\"" /etc/os-release; then
+      for command in "${!distro_commands}"; do
+        echo "Atualizando sistema"
+        sudo ${distro_commands["$i"]} update
+        sudo ${distro_commands["$i"]} dist-upgrade
+      done
+    fi
+  done
 }
 
 default_tools(){
-	echo "Instalando git"
-	sudo zypper install git
-	sudo zypper install vim
-	sudo zypper install wget
-	sudo zypper install curl
-	sudo zypper install unzip
-	sudo zypper install make
-	sudo zypper install python
-	sudo zypper install python-pip
+  for i in $distros; do
+    if grep -q "^ID=\"$i\"" /etc/os-release; then
+      for command in "${!distro_commands}"; do
+        sudo ${distro_commands["$i"]} install git
+        sudo ${distro_commands["$i"]} install vim
+        sudo ${distro_commands["$i"]} install wget
+        sudo ${distro_commands["$i"]} install curl
+        sudo ${distro_commands["$i"]} install unzip
+        sudo ${distro_commands["$i"]} install make
+        sudo ${distro_commands["$i"]} install python
+        sudo ${distro_commands["$i"]} install python-pip
+      done
+    fi
+  done
 	}
 
 gen_ssh_key_git(){
@@ -28,10 +46,17 @@ gen_ssh_key_git(){
 }
 
 install_lazygit(){
-  sudo zypper install lazygit
+  for i in $distros; do
+    if grep -q "^ID=\"$i\"" /etc/os-release; then
+      for command in "${!distro_commands}"; do
+        sudo ${distro_commands["$i"]} install lazygit
+      done
+    fi
+  done
 }
 
 install_node(){
+  default_tools
   echo "Instalando Node"
 	# Download and install nvm:
 	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
@@ -53,19 +78,25 @@ install_node(){
 }
 
 lunarvim(){
-	echo "Instalando $lvim Release "
-	default_tools
-	sudo zypper install make
-	sudo zypper install neovim
-	sudo zypper install python
-	sudo zypper install python-pip
-	sudo zypper install npm
-	sudo zypper install nodejs22
-	sudo zypper install cargo
-	sudo zypper install ripgrep
-	LV_BRANCH='release-1.4/neovim-0.9' bash <(curl -s https://raw.githubusercontent.com/LunarVim/LunarVim/release-1.4/neovim-0.9/utils/installer/install.sh)
-	echo export PATH="~/.local/bin:$PATH" >> ~/.bashrc
-	echo "Será necessário reiniciar o terminal para funcionar o $lvim"
+  for i in $distros; do
+    if grep -q "^ID=\"$i\"" /etc/os-release; then
+      for command in "${!distro_commands}"; do
+        echo "Instalando $lvim Release "
+        default_tools
+        sudo ${distro_commands["$i"]} install make
+        sudo ${distro_commands["$i"]} install neovim
+        sudo ${distro_commands["$i"]} install python
+        sudo ${distro_commands["$i"]} install python-pip
+        sudo ${distro_commands["$i"]} install npm
+        sudo ${distro_commands["$i"]} install nodejs22
+        sudo ${distro_commands["$i"]} install cargo
+        sudo ${distro_commands["$i"]} install ripgrep
+        LV_BRANCH='release-1.4/neovim-0.9' bash <(curl -s https://raw.githubusercontent.com/LunarVim/LunarVim/release-1.4/neovim-0.9/utils/installer/install.sh)
+        echo export PATH="~/.local/bin:$PATH" >> ~/.bashrc
+        echo "Será necessário reiniciar o terminal para funcionar o $lvim"
+      done
+    fi
+  done
 }
 
 install_fonts(){
@@ -73,3 +104,4 @@ install_fonts(){
     cd ~/.local/share/fonts && curl -fLO https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/DroidSansMono/DroidSansMNerdFont-Regular.otf
     fc-cache -f -v
 }
+
