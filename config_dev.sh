@@ -2,12 +2,13 @@
 
 source ./addons/permissions.sh
 source ./addons/installers.sh 
+source ./addons/graphic_card.sh
 
 goodbye="Ok até qualquer dia"
 
 homepage(){
   echo "1 - INSTALAR TODO O AMBIENTE"
-  echo "2 - INSTALAR ALGUMAS FERRAMENTAS"
+  echo "2 - INSTALAR FERRAMENTAS SEPARADAS"
   echo "0 - SAIR"
   read -p "O que deseja fazer? " user_choice
   case $user_choice in
@@ -23,6 +24,7 @@ homepage(){
       echo "2 LAZYGIT"
       echo "3 NODE"
       echo "4 FONTES"
+      echo "5 PLACA DE VIDEO"
       read -p "Qual ferramenta deseja instalar? " user_choice2
       case $user_choice2 in
         1)
@@ -36,6 +38,9 @@ homepage(){
         ;;
         4)
           install_fonts
+        ;;
+        5)
+          install_drivers
         ;;
         *)
           clear
