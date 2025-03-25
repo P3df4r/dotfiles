@@ -2,6 +2,7 @@
 
 lvim="Lunarvim"
 user=$(whoami)
+ssh_key_file="~/.ssh/"
 
 declare -A distro_commands
 distro_commands["opensuse-leap"]="zypper"
