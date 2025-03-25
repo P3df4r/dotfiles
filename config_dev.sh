@@ -25,6 +25,7 @@ homepage(){
       echo "3 NODE"
       echo "4 FONTES"
       echo "5 PLACA DE VIDEO"
+      echo "6 CHAVE SSH"
       read -p "Qual ferramenta deseja instalar? " user_choice2
       case $user_choice2 in
         1)
@@ -42,6 +43,10 @@ homepage(){
         5)
           install_drivers
         ;;
+        6)
+          gen_ssh_key_git
+        ;;
+
         *)
           clear
           figlet A VOLTA DOS QUE NÃO FORAM

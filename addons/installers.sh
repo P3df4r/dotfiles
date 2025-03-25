@@ -47,7 +47,6 @@ gen_ssh_key_git(){
   ssh-keygen -t ed25519 -C "$user@$(hostname)" -f "$ssh_key_file"
   echo "Chave pública gerada:"
   cat "${ssh_key_file}.pub"
-
 }
 
 install_lazygit(){
